@@ -1,20 +1,34 @@
-import { useEffect, useState } from "react";
-import CardList from "./components/card-list.js/card-list.component";
-import SearchBox from "./components/search-box.js/search-box.component";
+import { useEffect, useState, ChangeEvent } from "react";
+import CardList from "./components/card-list/card-list.component";
+import SearchBox from "./components/search-box/search-box.component";
 import "./App.css";
 import useDebounce from "./components/debounce";
+import { getData } from "./utils/utils";
+
+export type Monster = {
+  id: string;
+  name: string;
+  email: string;
+};
 
 const App = () => {
   const [searchField, setSearchField] = useState("");
-  const [monsters, setMonsters] = useState([]);
+  const [monsters, setMonsters] = useState<Monster[]>([]);
   const [filteredMonsters, setFilteredMonsters] = useState(monsters);
   const debounceSearchTerm = useDebounce(searchField);
 
   useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/users")
-      .then((res) => res.json())
-      .then((users) => setMonsters(users))
-      .catch((err) => console.log(err));
+    // fetch("https://jsonplaceholder.typicode.com/users")
+    //   .then((res) => res.json())
+    //   .then((users) => setMonsters(users))
+    //   .catch((err) => console.log(err));
+    const fetchUsers = async () => {
+      const users = await getData<Monster[]>(
+        "https://jsonplaceholder.typicode.com/users"
+      );
+      setMonsters(users);
+    };
+    fetchUsers();
   }, []);
 
   useEffect(() => {
@@ -28,7 +42,7 @@ const App = () => {
     }
   }, [debounceSearchTerm, monsters]);
 
-  const handleOnchange = (e) => {
+  const handleOnchange = (e: ChangeEvent<HTMLInputElement>): void => {
     const searchFieldString = e.target.value.toLowerCase();
     setSearchField(searchFieldString);
   };
